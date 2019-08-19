@@ -40,9 +40,14 @@
         </tr>
       </div>
     </div>
-    <div v-if="State">状态：{{StateRender}}</div>
     <div class="StorageChange table">
       <tbody class="col-12">
+      <tr>
+        <td class="titleName col-4">状态：</td>
+        <td class="contentName col-8">
+          <input class="StateInput" v-model="StateInput" type="text">
+        </td>
+      </tr>
       <tr>
         <td class="titleName col-4">原重量：</td>
         <td class="contentName col-8">{{Iquantity}}</td>
@@ -50,7 +55,7 @@
       <tr>
         <td class="titleName col-4">实际重量：</td>
         <td class="contentName col-8">
-          <input class="StorageInput" type="text">
+          <input class="IquantityInput" v-model="IquantityInput" type="text">
           <input class="StorageSubmit" type="button" value="提交" @click="changeWeight">
         </td>
       </tr>
@@ -61,7 +66,7 @@
 
 <script>
 import BScroll from 'better-scroll'
-import axios from 'axios'
+import axios from 'axios/index'
 
 export default {
   name: 'CheckStorage',
@@ -75,14 +80,19 @@ export default {
       Iquantity: '',
       // History
       History: [],
-      StateList: {}
+      StateList: {},
+      // Update
+      StateInput: '',
+      IquantityInput: ''
     }
   },
+
   computed: {
     StateRender () {
       return this.StateList[this.State].StateName
     }
   },
+
   methods: {
     jsonList2json (jsonList, keyStr) {
       let json = {}
@@ -93,47 +103,17 @@ export default {
       }
       return json
     },
+
     sendQR () {
       let self = this
       console.log(self + 'sendQR')
-      // $.ajax({
-      //   // url: 'checkstorage/',
-      //   url: 'api/checkstorage/',
-      //   type: 'POST',
-      //   data: {
-      //     qrcode: self.QR
-      //   },
-      //   timeout: 5000,
-      //   dataType: 'json',
-      //   success: function (data) {
-      //     console.log('success')
-      //     console.log(data)
-      //     if (data.error === 0) {
-      //       self.MaterialCode = data.data.MaterialCode
-      //       self.MaterialName = data.data.MaterialName
-      //       self.BatchNum = data.data.BatchNum
-      //       self.State = data.data.State
-      //       self.Iquantity = data.data.Iquantity
-      //       self.History = data.data.History
-      //       self.StateList = self.jsonList2json(data.data.StateList, 'State')
-      //       console.log(self.MaterialCode)
-      //       console.log(self.MaterialName)
-      //       console.log(self.BatchNum)
-      //       console.log(self.State)
-      //       console.log(self.History)
-      //       console.log(self.StateList)
-      //     } else {
-      //       alert('请重新扫描二维码')
-      //     }
-      //   },
-      //   error: function (data) {
-      //     console.log('timeout')
-      //     alert('与服务器连接超时')
-      //   }
-      // })
-      axios.post('/api/checkstorage', {
-        // axios.post('/checkstorage', {
-        qrcode: self.QR
+      let param = new URLSearchParams()
+      param.append('qrcode', self.QR)
+      axios({
+        method: 'post',
+        // url: 'checkstorage/',
+        url: 'api/checkstorage/',
+        data: param
       })
         .then(res => {
           console.log('success')
@@ -162,41 +142,20 @@ export default {
           alert('与服务器连接超时')
         })
     },
+
     changeWeight () {
       let self = this
       console.log(self + 'changeWeight')
-      // $.ajax({
-      //   url: 'checkstorageupdate/',
-      //   type: 'POST',
-      //   data: {
-      //     materialcode: self.MaterialCode,
-      //     materialname: self.MaterialName,
-      //     batchnum: self.BatchNum,
-      //     state: self.State
-      //   },
-      //   timeout: 5000,
-      //   dataType: 'json',
-      //   success: function (data) {
-      //     console.log('success')
-      //     if (data.error === 0) {
-      //       self.Iquantity = data.data.Iquantity
-      //       self.State = data.data.State
-      //       console.log(self.State)
-      //       console.log(self.Iquantity)
-      //     } else {
-      //       alert('请重新扫描二维码')
-      //     }
-      //   },
-      //   error: function (data) {
-      //     console.log('timeout')
-      //     alert('与服务器连接超时')
-      //   }
-      // })
-      axios.post('/api/checkstorageupdate', {
-        materialcode: self.MaterialCode,
-        materialname: self.MaterialName,
-        batchnum: self.BatchNum,
-        state: self.State
+
+      let param = new URLSearchParams()
+      param.append('qrcode', self.QR)
+      param.append('iquantity', self.IquantityInput)
+      param.append('state', self.StateInput)
+      axios({
+        method: 'post',
+        url: 'api/checkstorageupdate/',
+        // url: 'checkstorageupdate/',
+        data: param
       })
         .then(res => {
           console.log('success')
@@ -217,6 +176,7 @@ export default {
         })
     }
   },
+
   created () {
     // Bundle QR input
     this.$nextTick(() => {

@@ -1,5 +1,7 @@
 <template>
-    <div>Main</div>
+  <div>
+    <div class="title">Welcome</div>
+  </div>
 </template>
 
 <script>
@@ -8,6 +10,8 @@ export default {
 }
 </script>
 
-<style scoped>
-
+<style lang="scss" scoped>
+.title{
+  font-size: 5rem;
+}
 </style>

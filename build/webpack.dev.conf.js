@@ -51,16 +51,53 @@ const devWebpackConfig = merge(baseWebpackConfig, {
       poll: config.dev.poll,
     },
     before (app) {
-      app.post('/api/checkstorage', (req, res) => {
+      app.post('/api/login', (req, res) => {
         res.json({
           error: 0,
-          data: appData.checkstorage
+          data: appData.login
         })
       })
-      app.post('/api/checkstorageupdate', (req, res) => {
+      app.post('/api/CheckMaterial', (req, res) => {
         res.json({
           error: 0,
-          data: appData.checkstorageupdate
+          data: appData.CheckMaterial
+        })
+      })
+      app.post('/api/CheckMaterial/search/', (req, res) => {
+        res.json({
+          error: 0,
+          data: appData.CheckMaterial_search
+        })
+      })
+      app.post('/api/CheckMaterial/screen/', (req, res) => {
+        res.json({
+          error: 0,
+          data: appData.CheckMaterial_screen
+        })
+      })
+      app.post('/api/CheckMaterial/MaterialSearch/', (req, res) => {
+        res.json({
+          error: 0,
+          data: appData.CheckMaterial_MaterialSearch
+        })
+      })
+      app.post('/api/CheckMaterial/Material_QRSearch/', (req, res) => {
+        res.json({
+          error: 0,
+          data: appData.CheckMaterial_Material_QRSearch
+        })
+      })
+
+      app.post('/api/CheckStorage', (req, res) => {
+        res.json({
+          error: 0,
+          data: appData.CheckStorage
+        })
+      })
+      app.post('/api/CheckStorage/Change/', (req, res) => {
+        res.json({
+          error: 0,
+          data: appData.CheckStorage_Change
         })
       })
     }

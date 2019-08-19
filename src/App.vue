@@ -12,8 +12,17 @@ export default {
 </script>
 
 <style lang="scss">
+  @import "assets/scss/mint/components";
+
   * {
     font-size: 62%;
+    moz-user-select: -moz-none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
   }
 
   html,
@@ -21,7 +30,7 @@ export default {
     /*height: 100%;*/
     width: 100%;
     border: hidden;
-    overflow: hidden;
+    /*overflow: hidden;*/
   }
 
   #app {

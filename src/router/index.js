@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-// import HelloWorld from '@/components/HelloWorld'
 import Login from '@/components/Login'
 // import Home from '@/components/Home/Home'
 
@@ -8,11 +7,6 @@ Vue.use(Router)
 
 export default new Router({
   routes: [
-    // {
-    //   path: '/',
-    //   name: 'HelloWorld',
-    //   component: HelloWorld
-    // }
     {
       path: '/',
       name: 'Login',
@@ -31,7 +25,7 @@ export default new Router({
         {
           path: 'checkMaterial',
           name: 'CheckMaterial',
-          component: () => import('@/components/Home/CheckMaterial')
+          component: () => import('@/components/Home/CheckMaterial/CheckMaterial')
         },
         {
           path: 'mix',
@@ -41,7 +35,7 @@ export default new Router({
         {
           path: 'checkStorage',
           name: 'CheckStorage',
-          component: () => import('@/components/Home/CheckStorage')
+          component: () => import('@/components/Home/CheckStorage/CheckStorage')
         }, {
           path: 'workList',
           name: 'WorkList',
@@ -49,6 +43,11 @@ export default new Router({
         }
 
       ]
+    },
+    {
+      path: '/test',
+      name: 'test',
+      component: () => import('@/components/Infinite-Scroll')
     }
   ]
 })

@@ -56,6 +56,9 @@
                 class="col-4">{{StateList[item.State].StateName}}
             </td>
           </tr>
+          <tr class="col-12" v-if="StopUpdate === true">
+            <td class="col-12">没有更多</td>
+          </tr>
         </div>
       </div>
     </div>
@@ -63,13 +66,12 @@
 </template>
 
 <script>
-import store from '@/store/index'
-import $ from 'jquery'
 import BScroll from 'better-scroll'
+import axios from 'axios'
 
 export default {
   name: 'CheckMaterial',
-  store,
+
   data () {
     return {
       // 二维码
@@ -79,6 +81,7 @@ export default {
       StateList: {},
       // 请求字段
       number: 0,
+      StopUpdate: false,
       //
       total: 0,
       completed: 0,
@@ -87,6 +90,7 @@ export default {
     }
   },
   methods: {
+
     jsonList2json (jsonList, keyStr) {
       let json = {}
       for (let i = 0, len = jsonList.length; i < len; i++) {
@@ -96,103 +100,86 @@ export default {
       }
       return json
     },
+
     sendQR () {
       // 发送请求
       var self = this
-      $.ajax({
-        url: 'checkMaterial_1/',
-        type: 'POST',
-        data: {
-          type: 'normal',
-          qrcode: self.QR,
-          number: 0,
-          wocode: self.wocode,
-          batch: self.batch
-        },
-        timeout: 5000,
-        dataType: 'json',
-        success: function (data) {
-          console.log('success')
-          if (data.Type === 'success') {
-            self.dataList = data.Page1List
-            self.total = data.TotalCount
-            self.completed = data.CompleteCount
-            self.wocode = data.Wocode
-            self.batch = data.Batch
-            self.StateList = self.jsonList2json(data.StateList, 'State')
-          } else if (data.Code === '0') {
-            alert('请重新扫描二维码')
-          } else if (data.Code === '1') {
-            alert('二维码格式不正确')
-          } else if (data.Code === '2') {
-            alert('数据查询无结果')
-          } else if (data.Code === '3') {
-            alert('批次已锁定')
-          } else if (data.Code === '4') {
-            alert('批次已全部检料')
-          } else if (data.Code === '5') {
-            alert('该批次不为配料状态')
-          } else {
-            alert('与服务器连接中断')
-          }
-        },
-        error: function (data) {
-          console.log('timeout')
-          alert('与服务器连接超时')
-          // console.log(data)
-          self.dataList = store.state.Page1List // /
-          self.wocode = store.state.wocode // /
-          self.batch = store.state.batch // /
-          self.total = store.state.total // /
-          self.completed = store.state.completed // /
-
-          self.StateList = self.jsonList2json(store.state.StateList, 'State')
-        }
+      let param = new URLSearchParams()
+      param.append('batch', self.batch)
+      param.append('number', self.number)
+      param.append('qrcode', self.QR)
+      param.append('wocode', self.wocode)
+      axios({
+        method: 'post',
+        // url: 'checkMaterial_1/',
+        url: 'api/checkMaterial_1/',
+        data: param
       })
+        .then(res => {
+          console.log('success')
+          res = res.data
+          if (res.error === 0) {
+            console.log(res)
+            self.wocode = res.data.Wocode
+            self.batch = res.data.Batch
+            self.total = res.data.TotalCount
+            self.completed = res.data.CompleteCount
+            self.dataList = res.data.MaterialList
+            self.StateList = res.data.StateList
+            console.log(self.dataList)
+          } else {
+            alert('请重新扫描二维码')
+          }
+        })
+        .catch(res => {
+          console.log(res)
+          alert('与服务器连接超时')
+        })
     },
+
     unlock () {
       var self = this
       self.wocode = ''
       self.batch = ''
     },
+
     requestData () {
       var self = this
       self.number += 1
-      $.ajax({
-        url: 'checkMaterial_1/',
-        type: 'POST',
-        data: {
-          type: 'append',
-          number: self.number,
-          wocode: self.wocode,
-          batch: self.batch
-        },
-        timeout: 5000,
-        dataType: 'json',
-        success: function (data) {
-          console.log(data.Page1List)
-          if (data.Page1List.length) {
-            self.dataList = self.dataList.concat(data.Page1List)
-            self.total = data.TotalCount
-            self.completed = data.CompleteCount
-            console.log('success Update')
-          } else {
-            self.dataList = self.dataList.concat([{'MaterialCode': '没有更多', 'State': '1'}])
-            console.log('error Update')
-          }
-        },
-        error: function (data) {
-          console.log('error')
-          // self.dataList = self.dataList.concat(store.state.appendList) // /
-          self.dataList = self.dataList.concat([{'MaterialCode': '没有更多', 'State': '1'}])
-        }
+      if (self.StopUpdate === true) {
+        return
+      }
+      let param = new URLSearchParams()
+      param.append('batch', self.batch)
+      param.append('number', self.number)
+      axios({
+        method: 'post',
+        url: 'api/checkMaterial_1/',
+        data: param
       })
+        .then(res => {
+          console.log('success update')
+          res = res.data
+          if (res.error === 0) {
+            console.log(res)
+            self.dataList = self.dataList.concat(res.data.MaterialList)
+          } else {
+            self.StopUpdate = true
+          }
+        })
+        .catch(res => {
+          console.log(res)
+          alert('与服务器连接超时,获取失败')
+        })
     }
   },
+
   mounted () {
   },
+
   updated () {
   },
+
   created () {
     // Bundle QR input
     this.$nextTick(() => {
